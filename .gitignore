@@ -1,0 +1,27 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.so
+
+# Environments
+venv/
+.venv/
+
+# Django-specific files
+*.log
+*.pot
+*.mo
+db.sqlite3     # Your local SQLite database file
+/media         # User uploaded media files
+/static_collected # Compiled static files
+
+# Editors and IDEs
+.vscode/       # VS Code settings
+.idea/         # PyCharm/IntelliJ settings
+*~             # Temporary files
+*.swp          # Vim swap files
+
+# Operating System files
+.DS_Store      # Mac system files
+Thumbs.db      # Windows system files

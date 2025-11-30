@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from .models import ChatSession, Message
 from django.contrib.auth.hashers import make_password
 from .utils import generate_ai_response
+from rest_framework_simplejwt.tokens import RefreshToken
 
 @api_view(["POST"])
 def register_view(request):
@@ -21,7 +22,16 @@ def register_view(request):
         password=make_password(password)
     )
 
-    return Response({"message":"User registered succesfully."}, status=201)
+    refresh = RefreshToken.for_user(user)
+
+    return Response({
+        "user": {
+            "id": user.id,
+            "username": user.username,
+        },
+        "token": str(refresh.access_token),
+        "refresh": str(refresh),
+    }, status=201)
 
 @api_view(["POST"])
 def send_message_view(request):
@@ -36,14 +46,12 @@ def send_message_view(request):
 
     session_id = request.data.get("session_id")
 
-    # Case 1: session_id provided
     if session_id:
         try:
             session = ChatSession.objects.get(id=session_id, user=user)
         except ChatSession.DoesNotExist:
             return Response({"error": "Session not found or not owned by user."}, status=404)
 
-    # Case 2: no session_id -> use latest or create new
     else:
         try:
             session = ChatSession.objects.filter(user=user).latest("created_at")
@@ -57,7 +65,6 @@ def send_message_view(request):
         text=text
     )
 
-    # TODO: Call AI and save AI’s response here
     ai_response_text = generate_ai_response(session=session)
     
     ai_msg = Message.objects.create(
